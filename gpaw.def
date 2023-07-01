@@ -16,5 +16,6 @@ From: ubuntu:latest
     gpaw test
 
 %runscript
+    #!/bin/bash
     export GPAW_SETUP_PATH="$(find /gpaw-* -type d)"
-    mpirun -n ${2:1} gpaw python ${1}
+    gpaw python ${1}
