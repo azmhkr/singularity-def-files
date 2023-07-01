@@ -1,0 +1,20 @@
+BootStrap: docker
+
+From: ubuntu:latest
+
+%post
+    apt-get update
+    apt-get install -y python3-dev python3-pip libopenblas-dev libxc-dev libscalapack-mpi-dev libfftw3-dev &&\
+    mkdir ~/.gpaw && \
+    echo "fftw = True" > ~/.gpaw/siteconfig.py && \
+    echo "scalapack = True" >> ~/.gpaw/siteconfig.py && \
+    echo "libraries = ['xc', 'blas', 'fftw3', 'scalapack-openmpi']" >> ~/.gpaw/siteconfig.py && \
+    echo "extra_compile_args += ['-fopenmp']" >> ~/.gpaw/siteconfig.py && \
+    echo "extra_link_args += ['-fopenmp']" >> ~/.gpaw/siteconfig.py && \
+    pip install gpaw && \
+    yes | gpaw install-data / && \
+    gpaw test
+
+%runscript
+    export GPAW_SETUP_PATH="$(find /gpaw-* -type d)"
+    mpirun -n ${2:1} gpaw python ${1}
