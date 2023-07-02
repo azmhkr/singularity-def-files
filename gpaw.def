@@ -11,11 +11,11 @@ From: ubuntu:latest
     echo "libraries = ['xc', 'blas', 'fftw3', 'scalapack-openmpi']" >> ~/.gpaw/siteconfig.py && \
     echo "extra_compile_args += ['-fopenmp']" >> ~/.gpaw/siteconfig.py && \
     echo "extra_link_args += ['-fopenmp']" >> ~/.gpaw/siteconfig.py && \
-    pip install gpaw && \
+    pip install gpaw mpi4py && \
     yes | gpaw install-data / && \
     gpaw test
 
 %runscript
     #!/bin/bash
     export GPAW_SETUP_PATH="$(find /gpaw-* -type d)"
-    gpaw python ${1}
+    mpirun -n ${2} gpaw python ${1}
