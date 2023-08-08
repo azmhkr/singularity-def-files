@@ -4,7 +4,20 @@ From: ubuntu:latest
 
 %post
     apt-get update
-    apt-get install -y python3-dev python3-pip libopenblas-dev libxc-dev libscalapack-mpi-dev libfftw3-dev &&\
+    apt-get install -y python3-dev python3-pip libopenblas-dev libscalapack-mpi-dev libfftw3-dev wget build-essential &&\
+
+    wget https://gitlab.com/libxc/libxc/-/archive/6.2.2/libxc-6.2.2.tar.gz
+    tar -xf libxc-6.2.2.tar.gz
+    cd libxc-6.2.2
+    autoreconf -i
+    ./configure --enable-shared --disable-fortran --prefix=/libxc
+    make
+    make install
+    XC=/libxc
+    export C_INCLUDE_PATH=$XC/include:$C_INCLUDE_PATH
+    export LIBRARY_PATH=$XC/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$XC/lib:$LD_LIBRARY_PATH
+
     mkdir ~/.gpaw && \
     echo "fftw = True" > ~/.gpaw/siteconfig.py && \
     echo "scalapack = True" >> ~/.gpaw/siteconfig.py && \
@@ -17,5 +30,10 @@ From: ubuntu:latest
 
 %runscript
     #!/bin/bash
+    XC=/libxc
+    export C_INCLUDE_PATH=$XC/include:$C_INCLUDE_PATH
+    export LIBRARY_PATH=$XC/lib:$LIBRARY_PATH
+    export LD_LIBRARY_PATH=$XC/lib:$LD_LIBRARY_PATH
     export GPAW_SETUP_PATH="$(find /gpaw-* -type d)"
+
     mpirun -n ${2} gpaw python ${1}
