@@ -28,12 +28,11 @@ From: ubuntu:latest
     yes | gpaw install-data / && \
     gpaw test
 
-%runscript
-    #!/bin/bash
+%environment
     XC=/libxc
-    export C_INCLUDE_PATH=$XC/include:$C_INCLUDE_PATH
-    export LIBRARY_PATH=$XC/lib:$LIBRARY_PATH
     export LD_LIBRARY_PATH=$XC/lib:$LD_LIBRARY_PATH
     export GPAW_SETUP_PATH="$(find /gpaw-* -type d)"
 
-    mpirun -n ${2} gpaw python ${1}
+%runscript
+    #!/bin/bash
+    mpirun gpaw python ${1}
