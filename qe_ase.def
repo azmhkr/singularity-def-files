@@ -15,7 +15,7 @@ From: ubuntu:latest
     tar -xvf qe-7.0.tar.gz
     cd q-e-qe-7.0
     ./configure --enable-openmp --enable-parallel
-    make pw -j
+    make pw
     make install
 
     # install python libraries
