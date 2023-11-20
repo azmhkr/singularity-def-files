@@ -23,7 +23,7 @@ From: ubuntu:latest
     # install jDFTx
     wget https://github.com/shankar1729/jdftx/archive/refs/tags/v1.7.0.zip
     unzip v1.7.0.zip
-	cd jdftx-1.7.0/jdftx
+    cd jdftx-1.7.0/jdftx
     cmake -B build -DEnableLibXC=yes
     cmake --build build
     cmake --install build
