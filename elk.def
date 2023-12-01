@@ -1,0 +1,52 @@
+BootStrap: docker
+
+From: ubuntu:latest
+
+%post
+    apt-get update
+    apt-get install -y wget unzip build-essential gfortran autoconf
+    apt-get install -y g++ cmake ca-certificates
+    apt-get install -y openmpi-bin libopenmpi-dev
+    apt-get install -y libopenblas-dev liblapack-dev libfftw3-dev
+    apt-get install -y python3-dev python3-pip
+
+    # install libxc
+    wget https://gitlab.com/libxc/libxc/-/archive/6.2.2/libxc-6.2.2.zip
+    unzip libxc-6.2.2.zip
+    cd libxc-6.2.2
+    autoreconf -i
+    ./configure --enable-shared --prefix=/libxc
+    make -j
+    make install
+    cd /
+
+    # install elk
+    wget https://sourceforge.net/projects/elk/files/elk-9.2.5.tgz/download
+    tar -xvf download
+    cd elk-9.2.5
+    sed -i '50s/#LIB_LIBXC/LIB_LIBXC/' make.inc
+    sed -i '51s/#SRC_LIBXC/SRC_LIBXC/' make.inc
+    sed -i '70s/F90/#F90/' make.inc
+    sed -i '71s/F90_OPTS/#F90_OPTS/' make.inc
+    sed -i '72s/F90_LIB/#F90_LIB/' make.inc
+    sed -i '73s/SRC_MKL/#SRC_MKL/' make.inc
+    sed -i '74s/AR/#AR/' make.inc
+    sed -i '94s/#F90/F90/' make.inc
+    sed -i '95s/#F90_OPTS/F90_OPTS/' make.inc
+    sed -i '96s/#F90_LIB/F90_LIB/' make.inc
+    sed -i '97s/#SRC_OBLAS/SRC_OBLAS/' make.inc
+
+    cp /libxc/lib/libxcf90.a /elk-9.2.5/src
+    cp /libxc/lib/libxc.a /elk-9.2.5/src
+    cp /libxc/include/xc_f90_lib_m.mod /elk-9.2.5/src
+    cp /libxc/include/xc_funcs.h /elk-9.2.5/src
+    make all
+    cp /elk-9.2.5/src/elk /usr/local/bin
+    cp -r /elk-9.2.5/species /species
+
+    # install python libraries
+    pip install ase numpy scipy matplotlib pandas
+
+%environment
+    export OMP_STACKSIZE=64M
+    export ELK_SPPATH=/species
