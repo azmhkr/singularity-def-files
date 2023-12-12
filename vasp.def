@@ -30,7 +30,7 @@ From: ubuntu:latest
 
     mkdir /pseudo
     mv /potpaw /pseudo/potpaw
-    mv -r /potpaw_PBE /pseudo/potpaw_PBE
+    mv /potpaw_PBE /pseudo/potpaw_PBE
     chmod +rwx -R /pseudo
 
 %environment
