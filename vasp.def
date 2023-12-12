@@ -1,0 +1,39 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%setup
+
+%files
+    ./vasp.5.4.4.pl2 /vasp.5.4.4
+    ./potpaw /potpaw
+    ./potpaw_PBE /potpaw_PBE
+
+%post
+    apt-get update
+    apt-get install -y build-essential gfortran ca-certificates rsync
+    apt-get install -y openmpi-bin libopenmpi-dev libopenblas-dev liblapack-dev libfftw3-dev libscalapack-mpi-dev libtmglib-dev
+    apt-get install -y python3-dev python3-pip
+
+    # install vasp
+    cd vasp.5.4.4
+    cp /vasp.5.4.4/arch/makefile.include.linux_gnu /vasp.5.4.4/makefile.include
+    sed -i '19s/.*/FFLAGS = -w -fallow-argument-mismatch/' makefile.include
+    sed -i '24s/.*/LIBDIR = \/usr\/lib\/x86_64-linux-gnu/' makefile.include
+    sed -i '25s/.*/BLAS = -L$(LIBDIR) -lopenblas/' makefile.include
+    sed -i '26s/.*/LAPACK = -L$(LIBDIR) -ltmglib -llapack/' makefile.include
+    sed -i '28s/.*/SCALAPACK = -L$(LIBDIR) -lscalapack-openmpi/' makefile.include
+    sed -i '34s/.*/INCS = -I\/usr\/include/' makefile.include
+    make DEPS=1 all
+
+    # install python libraries
+    pip install ase numpy scipy matplotlib pandas
+
+    mkdir /pseudo
+    mv /potpaw /pseudo/potpaw
+    mv -r /potpaw_PBE /pseudo/potpaw_PBE
+    chmod +rwx -R /pseudo
+
+%environment
+    export PATH=$PATH:/vasp.5.4.4/bin
+    export ASE_VASP_COMMAND="mpirun vasp_std"
+    export VASP_PP_PATH=/pseudo
