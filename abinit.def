@@ -1,25 +1,29 @@
 Bootstrap: docker
-From: intel/oneapi-hpckit:devel-ubuntu22.04
+From: ubuntu:latest
 
 %post
     apt-get update
     apt-get install -y wget build-essential
+    apt-get install -y gfortran mpi-default-dev libopenmpi-dev liblapack-dev libblas-dev
+    apt-get install -y libhdf5-dev libnetcdf-dev libnetcdff-dev libxc-dev
     apt-get install -y python3-dev python3-pip
 
     # install q-e
-    wget https://github.com/QEF/q-e/archive/refs/tags/qe-7.0.tar.gz
-    tar -xvf qe-7.0.tar.gz
-    cd q-e-qe-7.0
-    ./configure MPIF90=mpiifort F90=ifort F77=ifort CC=gcc --enable-openmp --enable-parallel --with-scalapack=intel
-    make -j pw
+    wget https://www.abinit.org/sites/default/files/packages/abinit-9.0.4.tar.gz
+    tar xzf abinit-9.0.4.tar.gz
+    cd abinit-9.0.4
+    mkdir build && cd build
+    ../configure FC=mpifort --with-mpi="yes"
+    make -j4
     make install
 
     # install python libraries
-    pip install ase numpy scipy matplotlib pandas
+    cd /
+    git clone https://gitlab.com/ase/ase.git
+    cd ase
+    pip install .
+    pip install numpy scipy matplotlib pandas dftd3 dftd4
 
 %environment
-    export ASE_ESPRESSO_COMMAND="mpirun pw.x <./espresso.pwi > ./espresso.pwo"
-
-%runscript
-    #!/bin/bash
-    python3 ${1}
+    export ASE_ABINIT_COMMAND="mpirun abinit < PREFIX.files > PREFIX.log"
+    export ABINIT_PP_PATH=
