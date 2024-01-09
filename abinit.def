@@ -3,27 +3,33 @@ From: ubuntu:latest
 
 %post
     apt-get update
-    apt-get install -y wget build-essential
+    apt-get install -y wget build-essential git
     apt-get install -y gfortran mpi-default-dev libopenmpi-dev liblapack-dev libblas-dev
     apt-get install -y libhdf5-dev libnetcdf-dev libnetcdff-dev libxc-dev
     apt-get install -y python3-dev python3-pip
 
-    # install q-e
-    wget https://www.abinit.org/sites/default/files/packages/abinit-9.0.4.tar.gz
-    tar xzf abinit-9.0.4.tar.gz
-    cd abinit-9.0.4
+    # install abinit
+    wget https://www.abinit.org/sites/default/files/packages/abinit-9.10.3.tar.gz
+    tar xzf abinit-9.10.3.tar.gz
+    cd abinit-9.10.3
     mkdir build && cd build
-    ../configure FC=mpifort --with-mpi="yes"
-    make -j4
+    FC=mpifort
+    LINALG_LIBS="-L/usr/lib/x86_64-linux-gnu -llapack -lblas"
+    ../configure --with-mpi="yes" --with-mpi-io="yes" --with-linalg-flavor="netlib" --with-libxc="yes" --with-hdf5="yes" --with-netcdf="yes" --with-netcdf-fortran="yes"
+    make all
     make install
+
+    cd /
+    wget http://www.pseudo-dojo.org/pseudos/nc-sr_pbe_standard_psp8.tgz
+    tar -xvf nc-sr_pbe_standard_psp8.tgz
 
     # install python libraries
     cd /
     git clone https://gitlab.com/ase/ase.git
-    cd ase
-    pip install .
-    pip install numpy scipy matplotlib pandas dftd3 dftd4
+    pip install numpy pandas scipy matplotlib dftd3 dftd4
 
 %environment
+    export PYTHONPATH=/ase:$PYTHONPATH
+    export PATH=/ase/bin:$PATH
     export ASE_ABINIT_COMMAND="mpirun abinit < PREFIX.files > PREFIX.log"
-    export ABINIT_PP_PATH=
+    export ABINIT_PP_PATH=/pbe_s_sr
