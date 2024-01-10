@@ -18,7 +18,9 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     make DEPS=1 all
 
     # install python libraries
-    pip install ase numpy scipy matplotlib pandas
+    cd /
+    git clone https://gitlab.com/ase/ase.git
+    pip install numpy scipy matplotlib pandas dftd3 dftd4
 
     mkdir /pseudo
     mv /potpaw /pseudo/potpaw
@@ -26,6 +28,8 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     chmod +rwx -R /pseudo
 
 %environment
+    export PYTHONPATH=/ase:$PYTHONPATH
+    export PATH=/ase/bin:$PATH
     export PATH=$PATH:/vasp.5.4.4/bin
     export ASE_VASP_COMMAND="mpirun vasp_std"
     export VASP_PP_PATH=/pseudo
