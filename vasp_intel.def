@@ -5,6 +5,7 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     ./vasp.5.4.4.pl2 /vasp.5.4.4
     ./potpaw /potpaw
     ./potpaw_PBE /potpaw_PBE
+    ./vdw_kernel.bindat /vdw_kernel.bindat
 
 %post
     apt-get update
@@ -25,6 +26,7 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     mkdir /pseudo
     mv /potpaw /pseudo/potpaw
     mv /potpaw_PBE /pseudo/potpaw_PBE
+    mv /vdw_kernel.bindat /pseudo/vdw_kernel.bindat
     chmod +rwx -R /pseudo
 
 %environment
@@ -32,4 +34,5 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     export PATH=/ase/bin:$PATH
     export PATH=$PATH:/vasp.5.4.4/bin
     export ASE_VASP_COMMAND="mpirun vasp_std"
+    export ASE_VASP_VDW=/pseudo
     export VASP_PP_PATH=/pseudo
