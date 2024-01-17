@@ -1,0 +1,38 @@
+Bootstrap: docker
+From: intel/oneapi-hpckit:devel-ubuntu22.04
+
+%files
+    ./vasp.6.4.2 /vasp.6.4.2
+    ./potpaw /potpaw
+    ./potpaw_PBE /potpaw_PBE
+    ./vdw_kernel.bindat /vdw_kernel.bindat
+
+%post
+    apt-get update
+    apt-get install -y build-essential ca-certificates rsync git
+    apt-get install -y python3-dev python3-pip
+
+    # install vasp
+    cd vasp.6.4.2
+    cp /vasp.6.4.2/arch/makefile.include.intel_ompi_mkl_omp /vasp.6.4.2/makefile.include
+    MKLROOT=/opt/intel/oneapi/mkl/latest
+    make DEPS=1 all
+
+    # install python libraries
+    cd /
+    git clone https://gitlab.com/ase/ase.git
+    pip install numpy scipy matplotlib pandas dftd3 dftd4
+
+    mkdir /pseudo
+    mv /potpaw /pseudo/potpaw
+    mv /potpaw_PBE /pseudo/potpaw_PBE
+    mv /vdw_kernel.bindat /pseudo/vdw_kernel.bindat
+    chmod +rwx -R /pseudo
+
+%environment
+    export PYTHONPATH=/ase:$PYTHONPATH
+    export PATH=/ase/bin:$PATH
+    export PATH=$PATH:/vasp.6.4.2/bin
+    export ASE_VASP_COMMAND="mpirun vasp_std"
+    export ASE_VASP_VDW=/pseudo
+    export VASP_PP_PATH=/pseudo
