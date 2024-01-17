@@ -12,9 +12,21 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     apt-get install -y build-essential ca-certificates rsync git
     apt-get install -y python3-dev python3-pip
 
+    # install libxc
+    git clone https://gitlab.com/libxc/libxc.git
+    cd libxc
+    cmake -B build -DDISABLE_FHC=ON -DENABLE_FORTRAN=ON -DENABLE_XHOST=OFF -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_C_COMPILER=icc -DCMAKE_INSTALL_PREFIX=/libxc
+    cmake --build build
+    cmake --install build
+
     # install vasp
-    cd vasp.6.4.2
-    cp /vasp.6.4.2/arch/makefile.include.intel_ompi_mkl_omp /vasp.6.4.2/makefile.include
+    cd /vasp.6.4.2
+    cp /vasp.6.4.2/arch/makefile.include.intel_omp /vasp.6.4.2/makefile.include
+    sed -i '53s/^/#/' makefile.include
+    sed -i '$a\CPP_OPTIONS += -DUSELIBXC' makefile.include
+    sed -i '$a\LIBXC_ROOT = /libxc' makefile.include
+    sed -i '$a\INCS += -I/libxc/include' makefile.include
+    sed -i '$a\LLIBS += -L/libxc/lib -lxcf03 -lxc' makefile.include
     MKLROOT=/opt/intel/oneapi/mkl/latest
     make DEPS=1 all
 
