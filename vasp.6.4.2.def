@@ -33,7 +33,7 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     # install python libraries
     cd /
     git clone https://gitlab.com/ase/ase.git
-    pip install numpy scipy matplotlib pandas dftd3 dftd4
+    pip install numpy scipy matplotlib pandas dftd3 dftd4 spglib
 
     mkdir /pseudo
     mv /potpaw /pseudo/potpaw
