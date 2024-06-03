@@ -33,6 +33,7 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     # install python libraries
     cd /
     git clone https://gitlab.com/ase/ase.git
+    pip install ./ase
     pip install numpy scipy matplotlib pandas dftd3 dftd4 spglib
 
     mkdir /pseudo
@@ -42,8 +43,6 @@ From: intel/oneapi-hpckit:devel-ubuntu22.04
     chmod +rwx -R /pseudo
 
 %environment
-    export PYTHONPATH=/ase:$PYTHONPATH
-    export PATH=/ase/bin:$PATH
     export PATH=$PATH:/vasp.6.4.2/bin
     export ASE_VASP_COMMAND="mpirun vasp_std"
     export ASE_VASP_VDW=/pseudo
